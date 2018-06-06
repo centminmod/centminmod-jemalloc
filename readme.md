@@ -61,3 +61,13 @@ gcc
 /opt/jemalloc/bin/jemalloc-config --libs
 -lm  -lpthread -ldl
 ```
+
+```
+echo "LD_PRELOAD=$(/opt/jemalloc/bin/jemalloc-config --libdir)/libjemalloc.so.$(/opt/jemalloc/bin/jemalloc-config --revision)"
+LD_PRELOAD=/opt/jemalloc/lib/libjemalloc.so.2
+```
+
+```
+echo "-I$(/opt/jemalloc/bin/jemalloc-config --includedir) -L$(/opt/jemalloc/bin/jemalloc-config --libdir) -W-rpath,$(/opt/jemalloc/bin/jemalloc-config --libdir) -ljemalloc $(/opt/jemalloc/bin/jemalloc-config --libs)"
+-I/opt/jemalloc/include -L/opt/jemalloc/lib -W-rpath,/opt/jemalloc/lib -ljemalloc -lm  -lpthread -ldl
+```
