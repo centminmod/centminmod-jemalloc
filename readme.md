@@ -19,6 +19,23 @@ URL         : https://centminmod.com
 License     : unknown
 Description : jemalloc-custom-5.3.0 for centminmod.com LEMP stacks
 ```
+```
+ldd $(which nginx)
+        linux-vdso.so.1 =>  (0x00007ffe7f5b0000)
+        libpcre2-8.so.0 => /usr/local/nginx-dep/lib/libpcre2-8.so.0 (0x00007f376d738000)
+        libjemalloc.so.2 => /usr/local/nginx-dep/lib/libjemalloc.so.2 (0x00007f376d47b000)
+        libdl.so.2 => /lib64/libdl.so.2 (0x00007f376d277000)
+        libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f376d05b000)
+        libcrypt.so.1 => /lib64/libcrypt.so.1 (0x00007f376ce24000)
+        libGeoIP.so.1 => /lib64/libGeoIP.so.1 (0x00007f376cbf2000)
+        libatomic_ops.so.1 => /usr/local/nginx-dep/lib/libatomic_ops.so.1 (0x00007f376c9f0000)
+        libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007f376c7da000)
+        libc.so.6 => /lib64/libc.so.6 (0x00007f376c40c000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f376d9c5000)
+        libm.so.6 => /lib64/libm.so.6 (0x00007f376c10a000)
+        libstdc++.so.6 => /lib64/libstdc++.so.6 (0x00007f376be02000)
+        libfreebl3.so => /lib64/libfreebl3.so (0x00007f376bbff000)
+```
 
 EL8
 
@@ -37,6 +54,22 @@ Summary      : jemalloc-custom-5.3.0 for centminmod.com LEMP stack installs
 URL          : https://centminmod.com
 License      : unknown
 Description  : jemalloc-custom-5.3.0 for centminmod.com LEMP stack
+```
+```
+ldd $(which nginx)
+        linux-vdso.so.1 (0x00007ffd12fcd000)
+        libjemalloc.so.2 => /usr/local/nginx-dep/lib/libjemalloc.so.2 (0x00007f495a1c4000)
+        libdl.so.2 => /lib64/libdl.so.2 (0x00007f4959fc0000)
+        libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f4959da0000)
+        libcrypt.so.1 => /lib64/libcrypt.so.1 (0x00007f4959b77000)
+        libpcre.so.1 => /usr/local/nginx-dep/lib/libpcre.so.1 (0x00007f495a62a000)
+        libGeoIP.so.1 => /lib64/libGeoIP.so.1 (0x00007f495993a000)
+        libatomic_ops.so.1 => /lib64/libatomic_ops.so.1 (0x00007f4959737000)
+        libc.so.6 => /lib64/libc.so.6 (0x00007f4959372000)
+        libm.so.6 => /lib64/libm.so.6 (0x00007f4958ff0000)
+        libstdc++.so.6 => /lib64/libstdc++.so.6 (0x00007f4958c5b000)
+        libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007f4958a43000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f495a481000)
 ```
 
 EL7
