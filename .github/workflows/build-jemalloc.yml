@@ -31,8 +31,10 @@ jobs:
           dnf install -y epel-release &&
           if [[ ${{ matrix.os }} == 'almalinux:8' ]]; then
             dnf config-manager --set-enabled powertools;
+            DISTTAG='el8';
           else
             dnf config-manager --set-enabled crb;
+            DISTTAG='el9';
           fi &&
           dnf groupinstall 'Development Tools' -y &&
           dnf install -y \
@@ -47,7 +49,7 @@ jobs:
           
           # Install RVM and Ruby 3.3.5
           gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 &&
-          curl -sSL https://get.rvm.io | bash -s stable --ruby=3.3.5 --with-gems="bundler fpm" &&
+          curl -sSL https://get.rvm.io | bash -s stable --ruby=3.3.5 --with-gems='bundler fpm' &&
           source /etc/profile.d/rvm.sh &&
           rvm use 3.3.5 --default &&
 
@@ -85,7 +87,7 @@ jobs:
             FPMCOMPRESS_OPT='--rpm-compression gzip';
           fi &&
           echo '* $(date +"%a %b %d %Y") YourName <your-email> $JEMALLOCVER\n - jemalloc $JEMALLOCVER for custom Nginx' > jemalloc-${JEMALLOCVER}-changelog &&
-          fpm -f -s dir -t rpm -n jemalloc-custom -v $JEMALLOCVER $FPMCOMPRESS_OPT --rpm-changelog jemalloc-${JEMALLOCVER}-changelog --rpm-summary 'jemalloc ${JEMALLOCVER} for custom Nginx' --rpm-dist el${{ matrix.os: -1 }} --description 'jemalloc ${JEMALLOCVER} for custom Nginx stacks' --url https://your-url.com --rpm-autoreqprov --rpm-rpmbuild-define '_build_id_links none' -C /tmp/installdir &&
+          fpm -f -s dir -t rpm -n jemalloc-custom -v $JEMALLOCVER $FPMCOMPRESS_OPT --rpm-changelog jemalloc-${JEMALLOCVER}-changelog --rpm-summary 'jemalloc ${JEMALLOCVER} for custom Nginx' --rpm-dist $DISTTAG --description 'jemalloc ${JEMALLOCVER} for custom Nginx stacks' --url https://your-url.com --rpm-autoreqprov --rpm-rpmbuild-define '_build_id_links none' -C /tmp/installdir &&
 
           cp *.rpm /workspace/
         "
