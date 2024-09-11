@@ -97,13 +97,13 @@ jobs:
           export JEMALLOC_LIBDIR=/usr/local/nginx-dep &&
           echo $JEMALLOCVER &&
           echo $JEMALLOC_LIBDIR &&
-          wget --max-redirect=20 https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOCVER}.tar.gz -O jemalloc-${JEMALLOCVER}.tar.gz &&
-          tar xzf jemalloc-${JEMALLOCVER}.tar.gz &&
-          cd jemalloc-${JEMALLOCVER} &&
+          wget --max-redirect=20 https://github.com/jemalloc/jemalloc/archive/refs/tags/5.3.0.tar.gz -O jemalloc-5.3.0.tar.gz &&
+          tar xzf jemalloc-5.3.0.tar.gz &&
+          cd jemalloc-5.3.0 &&
 
           # Configure and build jemalloc
           ./autogen.sh &&
-          ./configure --prefix=${JEMALLOC_LIBDIR} --libdir=${JEMALLOC_LIBDIR}/lib --includedir=${JEMALLOC_LIBDIR}/include --with-version=${JEMALLOCVER}-0-g1 --with-jemalloc-prefix=je_ --with-malloc-conf='background_thread:true,dirty_decay_ms:1000,muzzy_decay_ms:1000' &&
+          ./configure --prefix=/usr/local/nginx-dep --libdir=/usr/local/nginx-dep/lib --includedir=/usr/local/nginx-dep/include --with-version=5.3.0-0-g1 --with-jemalloc-prefix=je_ --with-malloc-conf='background_thread:true,dirty_decay_ms:1000,muzzy_decay_ms:1000' &&
           make -j$(nproc) build_lib_shared &&
           make -j$(nproc) build_lib_static &&
 
@@ -122,8 +122,8 @@ jobs:
           else
             FPMCOMPRESS_OPT='--rpm-compression gzip';
           fi &&
-          echo '* $(date +"%a %b %d %Y") YourName <your-email> $JEMALLOCVER\n - jemalloc $JEMALLOCVER for custom Nginx' > jemalloc-${JEMALLOCVER}-changelog &&
-          fpm -f -s dir -t rpm -n jemalloc-custom -v $JEMALLOCVER $FPMCOMPRESS_OPT --rpm-changelog jemalloc-${JEMALLOCVER}-changelog --rpm-summary 'jemalloc ${JEMALLOCVER} for custom Nginx' --rpm-dist $DISTTAG --description 'jemalloc ${JEMALLOCVER} for custom Nginx stacks' --url https://your-url.com --rpm-autoreqprov --rpm-rpmbuild-define '_build_id_links none' -C /tmp/installdir &&
+          echo '* $(date +"%a %b %d %Y") YourName <your-email> 5.3.0\n - jemalloc 5.3.0 for custom Nginx' > jemalloc-5.3.0-changelog &&
+          fpm -f -s dir -t rpm -n jemalloc-custom -v 5.3.0 $FPMCOMPRESS_OPT --rpm-changelog jemalloc-5.3.0-changelog --rpm-summary 'jemalloc 5.3.0 for custom Nginx' --rpm-dist $DISTTAG --description 'jemalloc 5.3.0 for custom Nginx stacks' --url https://your-url.com --rpm-autoreqprov --rpm-rpmbuild-define '_build_id_links none' -C /tmp/installdir &&
 
           cp *.rpm /workspace/
         "
