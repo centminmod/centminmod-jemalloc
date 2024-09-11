@@ -28,8 +28,6 @@ jobs:
       run: |
         docker pull ${{ matrix.os }}
         docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace ${{ matrix.os }} /bin/bash -c "
-          export JEMALLOCVER=5.3.0 &&
-          echo $JEMALLOCVER &&
           dnf install -y epel-release &&
           if [[ ${{ matrix.os }} == 'almalinux:8' ]]; then
             dnf config-manager --set-enabled powertools;
@@ -92,11 +90,13 @@ jobs:
           # Verify Ruby installation
           ruby -v &&
           gem -v &&
-          gem install --no-document fpm &&
+          gem install --no-document fpm
 
           # Build jemalloc
-          JEMALLOC_LIBDIR=/usr/local/nginx-dep &&
-          echo $JEMALLOC_LIBDIR &&
+          JEMALLOCVER=5.3.0
+          echo $JEMALLOCVER
+          JEMALLOC_LIBDIR=/usr/local/nginx-dep
+          echo $JEMALLOC_LIBDIR
           wget --max-redirect=20 https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOCVER}.tar.gz -O jemalloc-${JEMALLOCVER}.tar.gz &&
           tar xzf jemalloc-${JEMALLOCVER}.tar.gz &&
           cd jemalloc-${JEMALLOCVER} &&
