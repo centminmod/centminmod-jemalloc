@@ -24,106 +24,20 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Set up AlmaLinux container
+    - name: Set up AlmaLinux container and build Jemalloc
       run: |
         docker pull ${{ matrix.os }}
         docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace ${{ matrix.os }} /bin/bash -c "
-          dnf install -y epel-release &&
           if [[ ${{ matrix.os }} == 'almalinux:8' ]]; then
-            dnf config-manager --set-enabled powertools;
             DISTTAG='el8';
           else
-            dnf config-manager --set-enabled crb;
             DISTTAG='el9';
           fi &&
-          dnf groupinstall 'Development Tools' -y &&
-          dnf install -y \
-            wget \
-            gcc \
-            make \
-            rpmdevtools \
-            tar \
-            curl \
-            gnupg2 \
-            libffi-devel \
-            readline-devel \
-            openssl \
-            openssl-devel \
-            zlib-devel \
-            sqlite-devel \
-            xz \
-            xz-devel \
-            xz-libs \
-            gcc-toolset-13-annobin-annocheck \
-            gcc-toolset-13-annobin-docs.noarch \
-            gcc-toolset-13-annobin-plugin-gcc \
-            gcc-toolset-13-binutils \
-            gcc-toolset-13-binutils-devel \
-            gcc-toolset-13-dwz \
-            gcc-toolset-13-gcc \
-            gcc-toolset-13-gcc-c++ \
-            gcc-toolset-13-gcc-gfortran \
-            gcc-toolset-13-gdb \
-            gcc-toolset-13-libasan-devel \
-            gcc-toolset-13-libatomic-devel \
-            gcc-toolset-13-libgccjit \
-            gcc-toolset-13-libgccjit-devel \
-            gcc-toolset-13-libgccjit-docs \
-            gcc-toolset-13-libitm-devel \
-            gcc-toolset-13-liblsan-devel \
-            gcc-toolset-13-libquadmath-devel \
-            gcc-toolset-13-libstdc++-devel \
-            gcc-toolset-13-libtsan-devel \
-            gcc-toolset-13-libubsan-devel \
-            gcc-toolset-13-runtime --skip-broken &&
-          
-          # Import both GPG keys for RVM
-          gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB ||
-          (curl -sSL https://rvm.io/mpapis.asc | gpg2 --import && curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import) &&
-          
-          # Install RVM and Ruby 3.1.6
-          curl -sSL https://get.rvm.io | bash -s stable &&
-          source /etc/profile.d/rvm.sh &&
-          export RUBY_CONFIGURE_OPTS='--with-openssl-dir=/usr' &&
-          rvm install 3.1.6 --with-openssl-dir=/usr &&
-          rvm use 3.1.6 --default &&
-          rvm alias create default 3.1.6 &&
-          ruby -ropenssl -e 'puts OpenSSL::OPENSSL_LIBRARY_VERSION'
-
-          # Verify Ruby installation
-          ruby -v &&
-          gem -v &&
-          gem install --no-document fpm &&
-
-          # Build jemalloc
-          export JEMALLOCVER=5.3.0 &&
-          export JEMALLOC_LIBDIR=/usr/local/nginx-dep &&
-          echo $JEMALLOCVER &&
-          echo $JEMALLOC_LIBDIR &&
-          wget --max-redirect=20 https://github.com/jemalloc/jemalloc/archive/refs/tags/5.3.0.tar.gz -O jemalloc-5.3.0.tar.gz &&
-          tar xzf jemalloc-5.3.0.tar.gz &&
-          cd jemalloc-5.3.0 &&
-
-          # Configure and build jemalloc
-          ./autogen.sh &&
-          ./configure --prefix=/usr/local/nginx-dep --libdir=/usr/local/nginx-dep/lib --includedir=/usr/local/nginx-dep/include --with-version=5.3.0-0-g1 --with-jemalloc-prefix=je_ --with-malloc-conf='background_thread:true,dirty_decay_ms:1000,muzzy_decay_ms:1000' &&
-          make -j$(nproc) build_lib_shared &&
-          make -j$(nproc) build_lib_static &&
-
-          # Install jemalloc to temporary directory
-          rm -rf /tmp/installdir &&
-          mkdir -p /tmp/installdir &&
-          make install_lib_shared DESTDIR=/tmp/installdir &&
-          make install_lib_static DESTDIR=/tmp/installdir &&
-          make install_include DESTDIR=/tmp/installdir &&
-          make install_bin DESTDIR=/tmp/installdir &&
-          make install_lib_pc DESTDIR=/tmp/installdir &&
-
-          # Create RPM using fpm
-          echo '* $(date +"%a %b %d %Y") George Liu <centminmod.com> 5.3.0\n - jemalloc 5.3.0 for custom Nginx' > jemalloc-5.3.0-changelog &&
-          fpm -f -s dir -t rpm -n jemalloc-custom -v 5.3.0 --rpm-compression xz --rpm-changelog jemalloc-5.3.0-changelog --rpm-summary 'jemalloc 5.3.0 for custom Nginx' --rpm-dist $DISTTAG --description 'jemalloc 5.3.0 for custom Nginx stacks' --url https://centminmod.com --rpm-autoreqprov --rpm-rpmbuild-define '_build_id_links none' --verbose -C /tmp/installdir &&
-
-          cp *.rpm /workspace/
+          # Copy build script into the container
+          cp /workspace/build-jemalloc.sh /tmp &&
+          chmod +x /tmp/build-jemalloc.sh &&
+          # Run build script
+          /tmp/build-jemalloc.sh $DISTTAG
         "
 
     - name: Inspect RPM contents
