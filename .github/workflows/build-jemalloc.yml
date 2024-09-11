@@ -73,12 +73,18 @@ jobs:
           # Try installing Ruby 3.2.5, fallback to 3.1.6, and finally 3.0.7 if needed
           install_ruby 3.2.5 || install_ruby 3.1.6 || install_ruby 3.0.7
 
+          # Ensure RVM is properly sourced after installation
+          source /etc/profile.d/rvm.sh &&
+          rvm use default &&
+          ruby -v &&
+          gem install fpm --no-document &&
+
           # Set the jemalloc version
           export JEMALLOCVER=5.3.0 &&
 
           # Build jemalloc
           JEMALLOC_LIBDIR=/usr/local/nginx-dep &&
-          wget --max-redirect=20 https://github.com/jemalloc/jemalloc/archive/${JEMALLOCVER}.tar.gz -O jemalloc-${JEMALLOCVER}.tar.gz &&
+          wget --max-redirect=20 https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOCVER}.tar.gz -O jemalloc-${JEMALLOCVER}.tar.gz &&
           tar xzf jemalloc-${JEMALLOCVER}.tar.gz &&
           cd jemalloc-${JEMALLOCVER} &&
 
