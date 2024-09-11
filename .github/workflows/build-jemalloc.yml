@@ -1,0 +1,112 @@
+name: Build Jemalloc RPM
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: ['almalinux:9', 'almalinux:8']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Set up AlmaLinux container
+      run: |
+        docker pull ${{ matrix.os }}
+        docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace ${{ matrix.os }} /bin/bash -c "
+          dnf install -y epel-release &&
+          if [[ ${{ matrix.os }} == 'almalinux:8' ]]; then
+            dnf config-manager --set-enabled powertools;
+          else
+            dnf config-manager --set-enabled crb;
+          fi &&
+          dnf groupinstall 'Development Tools' -y &&
+          dnf install -y \
+            wget \
+            gcc \
+            make \
+            rpmdevtools \
+            tar \
+            curl \
+            gnupg2 \
+            gcc-toolset-13-runtime --skip-broken &&
+          
+          # Install RVM and Ruby 3.3.5
+          gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 &&
+          curl -sSL https://get.rvm.io | bash -s stable --ruby=3.3.5 --with-gems="bundler fpm" &&
+          source /etc/profile.d/rvm.sh &&
+          rvm use 3.3.5 --default &&
+
+          # Verify Ruby and gem installation
+          ruby -v &&
+          gem -v &&
+          gem install --no-document fpm &&
+
+          # Build jemalloc
+          JEMALLOCVER=5.3.0 &&
+          JEMALLOC_LIBDIR=/usr/local/nginx-dep &&
+          wget https://github.com/jemalloc/jemalloc/archive/${JEMALLOCVER}.tar.gz -O jemalloc-${JEMALLOCVER}.tar.gz &&
+          tar xzf jemalloc-${JEMALLOCVER}.tar.gz &&
+          cd jemalloc-${JEMALLOCVER} &&
+
+          # Configure and build jemalloc
+          ./autogen.sh &&
+          ./configure --prefix=${JEMALLOC_LIBDIR} --libdir=${JEMALLOC_LIBDIR}/lib --includedir=${JEMALLOC_LIBDIR}/include --with-version=${JEMALLOCVER}-0-g1 --with-jemalloc-prefix=je_ --with-malloc-conf='background_thread:true,dirty_decay_ms:1000,muzzy_decay_ms:1000' &&
+          make -j$(nproc) build_lib_shared &&
+          make -j$(nproc) build_lib_static &&
+
+          # Install jemalloc to temporary directory
+          rm -rf /tmp/installdir &&
+          mkdir -p /tmp/installdir &&
+          make install_lib_shared DESTDIR=/tmp/installdir &&
+          make install_lib_static DESTDIR=/tmp/installdir &&
+          make install_include DESTDIR=/tmp/installdir &&
+          make install_bin DESTDIR=/tmp/installdir &&
+          make install_lib_pc DESTDIR=/tmp/installdir &&
+
+          # Create RPM using fpm
+          if [ -f /usr/bin/xz ]; then
+            FPMCOMPRESS_OPT='--rpm-compression xz';
+          else
+            FPMCOMPRESS_OPT='--rpm-compression gzip';
+          fi &&
+          echo '* $(date +"%a %b %d %Y") YourName <your-email> $JEMALLOCVER\n - jemalloc $JEMALLOCVER for custom Nginx' > jemalloc-${JEMALLOCVER}-changelog &&
+          fpm -f -s dir -t rpm -n jemalloc-custom -v $JEMALLOCVER $FPMCOMPRESS_OPT --rpm-changelog jemalloc-${JEMALLOCVER}-changelog --rpm-summary 'jemalloc ${JEMALLOCVER} for custom Nginx' --rpm-dist el${{ matrix.os: -1 }} --description 'jemalloc ${JEMALLOCVER} for custom Nginx stacks' --url https://your-url.com --rpm-autoreqprov --rpm-rpmbuild-define '_build_id_links none' -C /tmp/installdir &&
+
+          cp *.rpm /workspace/
+        "
+
+    - name: Inspect RPM contents
+      run: |
+        rpm -qpl jemalloc-*.rpm
+
+    - name: Set custom artifact name
+      run: |
+        if [[ ${{ matrix.os }} == 'almalinux:8' ]]; then
+          echo "ARTIFACT_NAME=jemalloc-rpm-almalinux-8" >> $GITHUB_ENV
+        else
+          echo "ARTIFACT_NAME=jemalloc-rpm-almalinux-9" >> $GITHUB_ENV
+        fi
+
+    - name: Upload RPM
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.ARTIFACT_NAME }}
+        path: jemalloc-*.rpm
+        if-no-files-found: warn
+        compression-level: 0
+        overwrite: false
