@@ -121,7 +121,7 @@ jobs:
 
           # Create RPM using fpm
           echo '* $(date +"%a %b %d %Y") George Liu <centminmod.com> 5.3.0\n - jemalloc 5.3.0 for custom Nginx' > jemalloc-5.3.0-changelog &&
-          fpm -f -s dir -t rpm -n jemalloc-custom -v 5.3.0 --rpm-compression xz --rpm-changelog jemalloc-5.3.0-changelog --rpm-summary 'jemalloc 5.3.0 for custom Nginx' --rpm-dist $DISTTAG --description 'jemalloc 5.3.0 for custom Nginx stacks' --url https://centminmod.com --rpm-autoreqprov --rpm-rpmbuild-define '_build_id_links none' -C /tmp/installdir &&
+          fpm -f -s dir -t rpm -n jemalloc-custom -v 5.3.0 --rpm-compression xz --rpm-changelog jemalloc-5.3.0-changelog --rpm-summary 'jemalloc 5.3.0 for custom Nginx' --rpm-dist $DISTTAG --description 'jemalloc 5.3.0 for custom Nginx stacks' --url https://centminmod.com --rpm-autoreqprov --rpm-rpmbuild-define '_build_id_links none' --verbose -C /tmp/installdir &&
 
           cp *.rpm /workspace/
         "
