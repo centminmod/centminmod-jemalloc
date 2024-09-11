@@ -81,6 +81,7 @@ jobs:
           # Install RVM and Ruby 3.0.7
           curl -sSL https://get.rvm.io | bash -s stable &&
           source /etc/profile.d/rvm.sh &&
+          export RUBY_CONFIGURE_OPTS="--with-openssl-dir=/usr/include/openssl" &&
           rvm install 3.0.7 &&
           rvm use 3.0.7 --default &&
           rvm alias create default 3.0.7 &&
