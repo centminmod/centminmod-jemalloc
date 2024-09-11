@@ -90,17 +90,16 @@ jobs:
           # Verify Ruby installation
           ruby -v &&
           gem -v &&
-          gem install --no-document fpm
+          gem install --no-document fpm &&
 
           # Build jemalloc
-          export JEMALLOCVER=5.3.0
-          echo "Jemalloc version is: $JEMALLOCVER"
-          echo "Starting wget..."
-          export JEMALLOC_LIBDIR=/usr/local/nginx-dep
-          echo $JEMALLOC_LIBDIR
-          wget --max-redirect=20 "https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOCVER}.tar.gz" -O "jemalloc-${JEMALLOCVER}.tar.gz" &&
-          tar xzf "jemalloc-${JEMALLOCVER}.tar.gz" &&
-          cd "jemalloc-${JEMALLOCVER}" &&
+          export JEMALLOCVER=5.3.0 &&
+          export JEMALLOC_LIBDIR=/usr/local/nginx-dep &&
+          echo $JEMALLOCVER &&
+          echo $JEMALLOC_LIBDIR &&
+          wget --max-redirect=20 https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOCVER}.tar.gz -O jemalloc-${JEMALLOCVER}.tar.gz &&
+          tar xzf jemalloc-${JEMALLOCVER}.tar.gz &&
+          cd jemalloc-${JEMALLOCVER} &&
 
           # Configure and build jemalloc
           ./autogen.sh &&
