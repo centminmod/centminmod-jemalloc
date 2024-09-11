@@ -8,7 +8,6 @@ RUBYVER=3.1.6
 JEMALLOC_LIBDIR=/usr/local/nginx-dep
 
 # Determine DISTTAG based on OS release
-local DISTTAG
 if grep -q "release 8" /etc/redhat-release; then
     DISTTAG='el8'
 elif grep -q "release 9" /etc/redhat-release; then
