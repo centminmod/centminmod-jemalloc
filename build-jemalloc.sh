@@ -6,7 +6,14 @@ set -e
 JEMALLOCVER=5.3.0
 RUBYVER=3.1.6
 JEMALLOC_LIBDIR=/usr/local/nginx-dep
-DISTTAG=$1  # AlmaLinux version (el8 or el9)
+
+# Determine DISTTAG based on OS release
+local DISTTAG
+if grep -q "release 8" /etc/redhat-release; then
+    DISTTAG='el8'
+elif grep -q "release 9" /etc/redhat-release; then
+    DISTTAG='el9'
+fi
 
 # Install dependencies
 dnf install -y epel-release &&
@@ -65,7 +72,9 @@ make install_lib_pc DESTDIR=/tmp/installdir
 # Create RPM using fpm
 echo "* $(date +"%a %b %d %Y") George Liu <centminmod.com> ${JEMALLOCVER}" > "jemalloc-${JEMALLOCVER}-changelog"
 echo "- jemalloc ${JEMALLOCVER} for custom Nginx" >> "jemalloc-${JEMALLOCVER}-changelog"
+echo
 cat "jemalloc-${JEMALLOCVER}-changelog"
+echo
 
 fpm -s dir -t rpm \
 -n jemalloc-custom \
