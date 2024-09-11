@@ -43,9 +43,9 @@ ruby -v
 gem install --no-document fpm
 
 # Build jemalloc
-wget --max-redirect=20 https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOCVER}.tar.gz -O jemalloc-${JEMALLOCVER}.tar.gz
-tar xzf jemalloc-${JEMALLOCVER}.tar.gz
-cd jemalloc-${JEMALLOCVER}
+wget "https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOCVER}.tar.gz" -O "jemalloc-${JEMALLOCVER}.tar.gz"
+tar xzf "jemalloc-${JEMALLOCVER}.tar.gz"
+cd "jemalloc-${JEMALLOCVER}"
 
 # Configure and build jemalloc
 ./autogen.sh
@@ -64,8 +64,9 @@ make install_lib_pc DESTDIR=/tmp/installdir
 
 # Create RPM using fpm
 # Create RPM using fpm
-echo "* $(date +"%a %b %d %Y") George Liu <centminmod.com> ${JEMALLOCVER}" > jemalloc-${JEMALLOCVER}-changelog
-echo "- jemalloc ${JEMALLOCVER} for custom Nginx" >> jemalloc-${JEMALLOCVER}-changelog
+echo "* $(date +"%a %b %d %Y") George Liu <centminmod.com> ${JEMALLOCVER}" > "jemalloc-${JEMALLOCVER}-changelog"
+echo "- jemalloc ${JEMALLOCVER} for custom Nginx" >> "jemalloc-${JEMALLOCVER}-changelog"
+cat "jemalloc-${JEMALLOCVER}-changelog"
 
 fpm -s dir -t rpm \
 -n jemalloc-custom \
@@ -82,5 +83,3 @@ fpm -s dir -t rpm \
 -p /workspace/jemalloc-${JEMALLOCVER}-${DISTTAG}.rpm \
 -C /tmp/installdir
 
-# Copy the RPM to the workspace
-cp *.rpm /workspace/
