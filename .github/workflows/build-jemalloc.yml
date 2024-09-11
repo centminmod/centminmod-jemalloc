@@ -45,6 +45,11 @@ jobs:
             tar \
             curl \
             gnupg2 \
+            libffi-devel \
+            readline-devel \
+            openssl-devel \
+            zlib-devel \
+            sqlite-devel \
             gcc-toolset-13-runtime --skip-broken &&
           
           # Import both GPG keys
@@ -55,6 +60,10 @@ jobs:
           curl -sSL https://get.rvm.io | bash -s stable --ruby=3.3.5 --with-gems='bundler fpm' &&
           source /etc/profile.d/rvm.sh &&
           rvm use 3.3.5 --default &&
+          
+          # Explicitly set GEM_HOME and PATH to ensure correct setup
+          export GEM_HOME=/usr/local/rvm/gems/ruby-3.3.5 &&
+          export PATH=$GEM_HOME/bin:/usr/local/rvm/rubies/ruby-3.3.5/bin:$PATH &&
 
           # Verify Ruby and gem installation
           ruby -v &&
