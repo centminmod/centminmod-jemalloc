@@ -93,13 +93,14 @@ jobs:
           gem install --no-document fpm
 
           # Build jemalloc
-          JEMALLOCVER=5.3.0
-          echo $JEMALLOCVER
-          JEMALLOC_LIBDIR=/usr/local/nginx-dep
+          export JEMALLOCVER=5.3.0
+          echo "Jemalloc version is: $JEMALLOCVER"
+          echo "Starting wget..."
+          export JEMALLOC_LIBDIR=/usr/local/nginx-dep
           echo $JEMALLOC_LIBDIR
-          wget --max-redirect=20 https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOCVER}.tar.gz -O jemalloc-${JEMALLOCVER}.tar.gz &&
-          tar xzf jemalloc-${JEMALLOCVER}.tar.gz &&
-          cd jemalloc-${JEMALLOCVER} &&
+          wget --max-redirect=20 "https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOCVER}.tar.gz" -O "jemalloc-${JEMALLOCVER}.tar.gz" &&
+          tar xzf "jemalloc-${JEMALLOCVER}.tar.gz" &&
+          cd "jemalloc-${JEMALLOCVER}" &&
 
           # Configure and build jemalloc
           ./autogen.sh &&
