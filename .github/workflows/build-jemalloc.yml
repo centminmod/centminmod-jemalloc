@@ -47,9 +47,31 @@ jobs:
             gnupg2 \
             libffi-devel \
             readline-devel \
+            openssl \
             openssl-devel \
             zlib-devel \
             sqlite-devel \
+            gcc-toolset-13-annobin-annocheck \
+            gcc-toolset-13-annobin-docs.noarch \
+            gcc-toolset-13-annobin-plugin-gcc \
+            gcc-toolset-13-binutils \
+            gcc-toolset-13-binutils-devel \
+            gcc-toolset-13-dwz \
+            gcc-toolset-13-gcc \
+            gcc-toolset-13-gcc-c++ \
+            gcc-toolset-13-gcc-gfortran \
+            gcc-toolset-13-gdb \
+            gcc-toolset-13-libasan-devel \
+            gcc-toolset-13-libatomic-devel \
+            gcc-toolset-13-libgccjit \
+            gcc-toolset-13-libgccjit-devel \
+            gcc-toolset-13-libgccjit-docs \
+            gcc-toolset-13-libitm-devel \
+            gcc-toolset-13-liblsan-devel \
+            gcc-toolset-13-libquadmath-devel \
+            gcc-toolset-13-libstdc++-devel \
+            gcc-toolset-13-libtsan-devel \
+            gcc-toolset-13-libubsan-devel \
             gcc-toolset-13-runtime --skip-broken &&
           
           # Import both GPG keys for RVM
