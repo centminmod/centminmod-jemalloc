@@ -87,6 +87,6 @@ fpm -s dir -t rpm \
 --rpm-autoreqprov \
 --rpm-rpmbuild-define "_build_id_links none" \
 --verbose \
--p "/workspace/jemalloc-${JEMALLOCVER}-${DISTTAG}.rpm" \
+-p "/workspace" \
 -C /tmp/installdir
 
