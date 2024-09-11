@@ -56,26 +56,29 @@ jobs:
           gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB ||
           (curl -sSL https://rvm.io/mpapis.asc | gpg2 --import && curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import) &&
           
-          # Install RVM and Ruby 2.6.10
-          curl -sSL https://get.rvm.io | bash -s stable --ruby=2.6.10 --with-gems='bundler fpm' &&
-          source /etc/profile.d/rvm.sh &&
-          rvm use 2.6.10 --default &&
-          
-          # Explicitly set GEM_HOME and PATH to ensure correct setup
-          export GEM_HOME=/usr/local/rvm/gems/ruby-2.6.10 &&
-          export PATH=$GEM_HOME/bin:/usr/local/rvm/rubies/ruby-2.6.10/bin:$PATH &&
+          # Function to install Ruby and fallback if necessary
+          install_ruby() {
+            RUBY_VERSION=$1
+            echo 'Trying Ruby version' $RUBY_VERSION &&
+            curl -sSL https://get.rvm.io | bash -s stable --ruby=$RUBY_VERSION --with-gems='bundler fpm' &&
+            source /etc/profile.d/rvm.sh &&
+            rvm use $RUBY_VERSION --default &&
+            export GEM_HOME=/usr/local/rvm/gems/ruby-$RUBY_VERSION &&
+            export PATH=$GEM_HOME/bin:/usr/local/rvm/rubies/ruby-$RUBY_VERSION/bin:$PATH &&
+            ruby -v &&
+            gem -v &&
+            gem install --no-document fpm
+          }
 
-          # Verify Ruby and gem installation
-          ruby -v &&
-          gem -v &&
-          gem install --no-document fpm &&
+          # Try installing Ruby 3.2.5, fallback to 3.1.6, and finally 3.0.7 if needed
+          install_ruby 3.2.5 || install_ruby 3.1.6 || install_ruby 3.0.7
 
           # Set the jemalloc version
           export JEMALLOCVER=5.3.0 &&
 
           # Build jemalloc
           JEMALLOC_LIBDIR=/usr/local/nginx-dep &&
-          wget https://github.com/jemalloc/jemalloc/archive/${JEMALLOCVER}.tar.gz -O jemalloc-${JEMALLOCVER}.tar.gz &&
+          wget --max-redirect=20 https://github.com/jemalloc/jemalloc/archive/${JEMALLOCVER}.tar.gz -O jemalloc-${JEMALLOCVER}.tar.gz &&
           tar xzf jemalloc-${JEMALLOCVER}.tar.gz &&
           cd jemalloc-${JEMALLOCVER} &&
 
