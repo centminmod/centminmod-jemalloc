@@ -63,8 +63,24 @@ make install_bin DESTDIR=/tmp/installdir
 make install_lib_pc DESTDIR=/tmp/installdir
 
 # Create RPM using fpm
-echo '* $(date +"%a %b %d %Y") George Liu <centminmod.com> ${JEMALLOCVER}\n - jemalloc ${JEMALLOCVER} for custom Nginx' > jemalloc-${JEMALLOCVER}-changelog
-fpm -f -s dir -t rpm -n jemalloc-custom -v ${JEMALLOCVER} --rpm-compression xz --rpm-changelog jemalloc-${JEMALLOCVER}-changelog --rpm-summary "jemalloc ${JEMALLOCVER} for custom Nginx" --rpm-dist $DISTTAG --description "jemalloc ${JEMALLOCVER} for custom Nginx stacks" --url https://centminmod.com --rpm-autoreqprov --rpm-rpmbuild-define '_build_id_links none' --verbose -C /tmp/installdir
+# Create RPM using fpm
+echo "* $(date +"%a %b %d %Y") George Liu <centminmod.com> ${JEMALLOCVER}" > jemalloc-${JEMALLOCVER}-changelog
+echo "- jemalloc ${JEMALLOCVER} for custom Nginx" >> jemalloc-${JEMALLOCVER}-changelog
+
+fpm -s dir -t rpm \
+-n jemalloc-custom \
+-v ${JEMALLOCVER} \
+--rpm-compression xz \
+--rpm-changelog jemalloc-${JEMALLOCVER}-changelog \
+--rpm-summary "jemalloc ${JEMALLOCVER} for custom Nginx" \
+--rpm-dist $DISTTAG \
+--description "jemalloc ${JEMALLOCVER} for custom Nginx stacks" \
+--url https://centminmod.com \
+--rpm-autoreqprov \
+--rpm-rpmbuild-define '_build_id_links none' \
+--verbose \
+-C /tmp/installdir
+
 
 # Copy the RPM to the workspace
 cp *.rpm /workspace/
