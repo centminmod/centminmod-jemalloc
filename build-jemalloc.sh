@@ -90,3 +90,10 @@ fpm -s dir -t rpm \
 -p "/workspace" \
 -C /tmp/installdir
 
+# Install the generated RPM
+echo
+rpm -ivh "/workspace/jemalloc-custom-${JEMALLOCVER}-1.${DISTTAG}.x86_64.rpm"
+
+# Verify the installation with pkg-config
+echo
+PKG_CONFIG_PATH="${JEMALLOC_LIBDIR}/lib/pkgconfig/" pkg-config --modversion jemalloc
