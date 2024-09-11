@@ -52,40 +52,21 @@ jobs:
             sqlite-devel \
             gcc-toolset-13-runtime --skip-broken &&
           
-          # Import both GPG keys
+          # Import both GPG keys for RVM
           gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB ||
           (curl -sSL https://rvm.io/mpapis.asc | gpg2 --import && curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import) &&
           
-          # Install RVM
+          # Install RVM and Ruby 3.0.7
           curl -sSL https://get.rvm.io | bash -s stable &&
           source /etc/profile.d/rvm.sh &&
-          rvm reload &&
+          rvm install 3.0.7 &&
+          rvm use 3.0.7 --default &&
+          rvm alias create default 3.0.7 &&
 
-          # Function to install Ruby and fallback if necessary
-          install_ruby() {
-            RUBY_VERSION=$1
-            echo 'Trying Ruby version' $RUBY_VERSION &&
-            rvm install $RUBY_VERSION &&
-            if rvm use $RUBY_VERSION --default; then
-              echo 'Successfully installed and using Ruby version' $RUBY_VERSION &&
-              rvm alias create default $RUBY_VERSION &&
-              ruby -v &&
-              gem install --no-document fpm
-              return 0
-            else
-              echo 'Failed to install Ruby version' $RUBY_VERSION
-              return 1
-            fi
-          }
-
-          # Try installing Ruby 3.2.5, fallback to 3.1.6, and finally 3.0.7 if needed
-          install_ruby 3.2.5 || install_ruby 3.1.6 || install_ruby 3.0.7
-
-          # Ensure RVM is properly sourced after installation
-          source /etc/profile.d/rvm.sh &&
-          rvm use default &&
+          # Verify Ruby installation
           ruby -v &&
-          gem install fpm --no-document &&
+          gem -v &&
+          gem install --no-document fpm &&
 
           # Set the jemalloc version
           export JEMALLOCVER=5.3.0 &&
